@@ -1,0 +1,3 @@
+bytes, _ := os.ReadFile(MyFile[0])
+lines := strings.Split(string(bytes), "\n")
+lines = lines[:len(lines)-1]

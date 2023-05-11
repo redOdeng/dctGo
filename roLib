@@ -1,0 +1,34 @@
+package roLib
+
+import (
+	"os"
+	"strconv"
+	"strings"
+)
+
+func Atof(arrA []string) []float64 {
+	arrB := make([]float64, len(arrA))
+	for i, v := range arrA {
+		arrB[i], _ = strconv.ParseFloat(v, 64)
+	}
+
+	return arrB
+}
+
+func ReadLines(filename string) []string {
+	bytes, _ := os.ReadFile(filename)
+	lines := strings.Split(string(bytes), "\n")
+	lines = lines[:len(lines)-1]
+
+	return lines
+}
+
+func Reverse[S ~[]E, E any](s S) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
+}
+
+func First[T, U any](val T, _ U) T {
+	return val
+}

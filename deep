@@ -1,0 +1,34 @@
+// mnist 28x28 nn-deep
+
+package main
+
+import (
+	"bufio"
+	"encoding/csv"
+	"fmt"
+	_ "io"
+	_ "io/ioutil"
+	"os"
+	"strconv"
+	_ "strings"
+)
+
+func main() {
+	file, _ := os.Open("./mnist_1000.csv")
+
+	// csv reader 생성
+	rdr := csv.NewReader(bufio.NewReader(file))
+	rows, _ := rdr.ReadAll()
+
+	var dataset = make([][28 * 28]float64, 1000)
+	// var labels = make([]float64, 1000)
+	for i, row := range rows {
+		for j := range row[1:] {
+			//fmt.Println(i, j)
+			dataset[i][j], _ = strconv.ParseFloat(rows[i][j+1], 64) + 0.001
+			dataset[i][j] /= 256
+		}
+	}
+
+	fmt.Println(dataset[0])
+}

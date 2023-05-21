@@ -1,0 +1,56 @@
+
+
+
+using System.Text.Json;
+using System;
+
+public class roUpbit {
+    public async Task<List<Markets>?> getMarketList() {
+        var httpClient = new HttpClient();
+
+        string url = "https://api.upbit.com/v1/market/all";
+
+        var response = await httpClient.GetAsync(url);
+        string body = await response.Content.ReadAsStringAsync();
+        var objects = JsonSerializer.Deserialize<List<Markets>>(body);
+
+        return objects;
+    }
+
+    public async Task<List<jsOHLCV>?> getCandleMinute(string id) {
+        var httpClient = new HttpClient();
+
+        int unit = 10;
+        string option_to = "";
+        //string url = @"https://api.upbit.com/v1/candles/minutes/{unit}?market={id}{option_to}&count=200";
+        string url = $"https://api.upbit.com/v1/candles/minutes/{unit}?market={id}{option_to}&count=200";
+
+        var response = await httpClient.GetAsync(url);
+        string body = await response.Content.ReadAsStringAsync();
+        Console.WriteLine(body);
+        var objects = JsonSerializer.Deserialize<List<jsOHLCV>>(body);
+
+        return objects;
+    }
+
+
+
+}
+
+
+public class Markets {
+    public string? market { get; set; }
+    public string? korean_name { get; set; }
+    public string? english_name { get; set; }
+}
+
+public class jsOHLCV {
+    public string? t { get; set; }
+    public string? po { get; set; }
+    public string? ph { get; set; }
+    public string? pl { get; set; }
+    public string? pc { get; set; }
+    public string? v { get; set; }
+}
+
+

@@ -1,0 +1,63 @@
+# 23.02.25 by redOdeng
+# bitcoin k-means test
+
+# k-means properties
+# p = average(ohlc) , vol
+
+import pandas as pd
+import numpy as np
+from sklearn.cluster import MiniBatchKMeans
+import time
+import matplotlib.pyplot as plt
+
+
+df = pd.read_csv("KRW-BTC.csv")         # data 1Hr
+df["p"] = df[["open", "high", "low", "close"]].mean(axis=1)
+n_size = len(df.p)
+
+# ---- make dataset -----------------------------------------------
+dataset = []
+y_profit = []       # after 5 day = 24 x 5 = 120
+REF_SIZE = 240
+REF_PROFIT = 120
+for i in range(REF_SIZE, n_size-REF_PROFIT, 10):
+    pp = df.p[i-REF_SIZE:i].values
+    pp /= pp[0]
+
+    vv = df.volume[i-REF_SIZE:i].values
+    vv /= vv[0]
+
+    dataset += [np.append(pp, vv)]
+
+    profit = (pp[-1] - pp[0]) / pp[0] * 100.0
+    y_profit += [profit]
+
+
+# save k-means -----------------------------------------------------
+mbk = MiniBatchKMeans(n_clusters=1000, n_init=10, max_iter=1000)
+labels = mbk.fit_predict(dataset)
+print(labels)
+
+# summary data
+k_profit = []
+
+
+
+
+
+
+# # find best n_clusters : best n = 1000
+# pxx, pyy = [], []
+# for n in range(100, 3000, 100):
+#     mbk = MiniBatchKMeans(n_clusters=n, n_init=10, max_iter=1000)
+#     t0 = time.time()
+#     mbk.fit(dataset)
+#     t_mini_batch = time.time() - t0
+#
+#     print(f"{n:4d} : {t_mini_batch}, {mbk.inertia_}")
+#     pxx += [n]
+#     pyy += [mbk.inertia_]
+#     # print(type(dataset[0]), len(dataset[0]))
+#
+# plt.plot(pxx, pyy)
+# plt.show()

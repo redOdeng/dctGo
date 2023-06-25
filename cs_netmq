@@ -1,0 +1,40 @@
+using NetMQ;
+using NetMQ.Sockets;
+
+namespace csZmq_v1 {
+    public partial class zmq_v1 : Form {
+
+        public zmq_v1() {
+            InitializeComponent();
+        }
+
+        private void zmq_v1_Shown(object sender, EventArgs e) {
+            doMain();
+        }
+
+        void doMain() {
+            Thread receiverThread = new Thread(new ThreadStart(Receiver));
+            receiverThread.Start();
+
+        }
+
+        private void Receiver() {
+            ResponseSocket server = new ResponseSocket("@tcp://localhost:5556");
+
+            var cnt = 0;
+            while (true) {
+                txtRecv.AppendText($"recv ready....msg: {cnt++}\r\n");
+                var msg_recv = server.ReceiveFrameString();
+                txtRecv.AppendText($"recv msg: {msg_recv}\r\n");
+                // Thread.Sleep(100);
+
+                var msg_send = "hahaha";
+                txtSend.AppendText($"recv msg: {msg_send}\r\n");
+                server.SendFrame("World");
+
+                //Application.DoEvents();
+            }
+        }
+
+    }
+}

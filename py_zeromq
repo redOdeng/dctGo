@@ -1,0 +1,31 @@
+import zmq
+import time
+
+context = zmq.Context()
+
+#  Socket to talk to server
+print("Connecting to hello world server…")
+socket = context.socket(zmq.REQ)
+socket.connect("tcp://localhost:5556")
+#time.sleep(1)
+
+#  Do 10 requests, waiting each time for a response
+
+jsonString = "{\"Id\":1,\"Address\":{\"Zip\":\"98052\",\"State\":\"WA\"}}"
+
+
+# rostring array data -- roon : ro object note
+# 1st name, 2nd~ data
+# seperate : 1st = /,   2nd = ,
+# account [code, price, qty, earn] : A501020,20200,5,2.3/ ...
+# chart [t po ph pl pc vol] : 230302 090000,23520,23000,21000,23000,326523/ ...
+# gwan [code pc] : A231562,6300/ ...
+
+
+for request in range(10):
+    print("Sending request %s …" % request)
+    socket.send_string(jsonString)
+
+    #  Get the reply.
+    message = socket.recv_string()
+    print("Received reply %s [ %s ]"

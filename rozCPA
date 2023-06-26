@@ -1,0 +1,20 @@
+import zmq
+
+class CPA:
+    def __init__(self):
+        context = zmq.Context()
+        self.Sender = context.socket(zmq.REQ)
+        self.Sender.connect("tcp://localhost:5556")
+        pass
+
+    def GetA(self):
+        self.Sender.send_string("test getA")
+        msg = self.Sender.recv_string()
+        return msg
+        
+
+if __name__ == "__main__":
+    cp = CPA()
+
+    msg = cp.GetA()
+    print(f" received msg = {msg}")

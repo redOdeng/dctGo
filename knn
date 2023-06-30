@@ -1,0 +1,94 @@
+# 23.06.15 by redOdeng
+# bitcoin k-neighbor test
+
+# features x : pv5 pv10 pv20 pv60 pv120 vv5 ss20      * v = fit_1th
+# reward   y : gain after 5 day
+# predict  : 
+
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+import time
+import matplotlib.pyplot as plt
+
+
+def calcV(arr):
+    coef = np.polyfit(range(len(arr)), arr, 1)      # y= ax + b
+    return coef[0] * 100
+
+
+df = pd.read_csv("C:\_HDD\DCT\pyEX\pyCoin\data\KRW-BTC-D.csv")         # 2086 lines
+df['pn'] = df.close / np.mean(df.close)     # price norm
+df['vn'] = df.volume / np.mean(df.volume)     # price norm
+
+# calc feature xx, reward yy
+set_xx, set_yy = [], []
+df['sign'] = 0
+DAY_AFTER = 10
+for i in range(120, len(df.pn)-DAY_AFTER):      # 120 ~ last-5
+    xx = [calcV(df.pn[i-x:i]) for x in [5, 10, 20, 60, 120]]
+    xx += [calcV(df.vn[i-5:i])]                 # add vv5
+    p = df.pn[i]
+    xx += [p/np.mean(df.pn[i-20:i])]            # add ss20
+
+    set_xx += [xx]
+    set_yy += [1] if p*1.03 < df.pn[i+DAY_AFTER] else [-1] if p*0.97 > df.pn[i+DAY_AFTER] else [0]
+    df.loc[i, 'sign'] = set_yy[-1]
+
+
+# print(xxx)
+
+# n check -- low best n = 15
+# score_y = []
+# for i in range(1,20):
+#     knn = KNeighborsClassifier(n_neighbors=i)
+#     knn.fit(set_xx, set_yy)
+
+#     acc_test = accuracy_score(set_yy, knn.predict(set_xx))
+#     print(f"-- {i} : acc= {acc_test}")
+#     score_y += [acc_test]
+
+# plt.plot(range(1,20), score_y)
+# plt.show()
+
+# calc earn -----------------------------------------------------
+knn = KNeighborsClassifier(n_neighbors=3)
+knn.fit(set_xx, set_yy)
+
+signals = knn.predict(set_xx)
+# print(signals)
+# print(len(set_xx), len(set_yy), len(signals), len(df.pn[120:-DAY_AFTER]))
+
+# for i in range(len(signals)):
+#     if signals[i] == 1: plt.axvline(120+i, color='r')
+#     if signals[i] == -1: plt.axvline(120+i, color='b')
+# plt.plot(df.pn)
+# plt.show()
+
+# calc profit ----------------------------------------------------
+buy, sell, qty = 0, 0, 0
+for i in range(len(signals)):
+    
+
+
+
+
+# df["signal"] = knn.predict(xx)
+
+# df["gain_base"] = np.log(df.close / df.close.shift(1))
+# cum_gain1 = df.gain_base.cumsum() * 100
+
+# df["gain_knn"] = df.gain_base * df.signal.shift(1)
+# cum_gain2 = df.gain_knn.cumsum() * 100
+
+
+# fig, ax1 = plt.subplots()
+# ax1.plot(df.close)
+
+# ax2 = ax1.twinx()
+# ax2.plot(cum_gain1, label="base")
+# ax2.plot(cum_gain2, label="knn")
+# plt.legend()
+# plt.show()

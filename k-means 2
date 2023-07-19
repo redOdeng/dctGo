@@ -1,0 +1,49 @@
+
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.cluster import KMeans
+from sklearn.metrics import accuracy_score
+
+import time
+import matplotlib.pyplot as plt
+
+
+def calcV(arr):
+    coef = np.polyfit(range(len(arr)), arr, 1)      # y= ax + b
+    return coef[0] * 100
+
+
+def logicA(arr, qty, cntDay, ):
+    # return BHS
+    # buy  : ma_20 < pc, v5 > 0     size=20
+    # sell : daycnt > 5, earn > 3%, earn < -3%, v5 < 0
+
+    ma20 = np.mean(arr[-20:])
+    v5 = calcV(arr[-5:])
+
+    return "H"
+
+
+df = pd.read_csv("C:/_HDD/DCT/pyEX/pyCoin/data/KRW-BTC-D.csv")         # data 1Hr
+df["p"] = df[["open", "high", "low", "close"]].mean(axis=1)
+
+# normalization
+# (v - min) / (max - min) ==> 0.0 ~ 1.0
+pmax = df.p.max()
+pmin = df.p.min()
+df["p"] = (df.p - pmin) / (pmax - pmin)
+# print(df)
+
+# p120 clustering
+N = len(df.p)
+DAY_REF = 120
+xxx = []
+for i in range(0, N-DAY_REF, 5):
+    xxx += [df.p[i:i+DAY_REF]/df.p[i]]
+
+kmn = KMeans(n_init='auto', n_clusters=100)
+kmn.fit(xxx)
+print(kmn.predict(xxx))
+    
+

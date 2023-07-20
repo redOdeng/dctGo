@@ -44,6 +44,69 @@ for i in range(0, N-DAY_REF, 5):
 
 kmn = KMeans(n_init='auto', n_clusters=100)
 kmn.fit(xxx)
+
+
+
+
+def IsMatching(arrA, arrB):
+    # print(arrA, arrB)
+    ERR_RATE = 0.3
+    err = 0
+    for i in range(len(arrA)):
+        diff = (arrA[i] - arrB[i])**2
+        err += diff
+        if diff > ERR_RATE: return (err, False)
+
+    return (err, True)
+    
+
+
+
+
+
+
+df = pd.read_csv("C:/_HDD/DCT/pyEX/pyCoin/data/KRW-BTC-D.csv")         # data 1Hr
+df["p"] = df[["open", "high", "low", "close"]].mean(axis=1)
+
+# normalization
+# (v - min) / (max - min) ==> 0.0 ~ 1.0
+pmax = df.p.max()
+pmin = df.p.min()
+df["p"] = (df.p - pmin) / (pmax - pmin)
+# print(df)
+
+# xxx = p120 data set
+N = len(df.p)
+DAY_REF = 120
+curve_set = []
+for i in range(0, N-DAY_REF, 10):
+    curve_set += [(df.p[i:i+DAY_REF]/df.p[i]).values]
+# print(curve_set, "----------------------------------------------")
+
+
+# phase 1
+# del arr[i]
+turn = 0
+xxx = curve_set.copy()
+yyy = [-1 for i in range(len(xxx))]
+print(xxx[0], len(xxx))
+while len(xxx) > 0:
+    ref = xxx[0]
+
+    for i in range(len(xxx)-1, -1, -1):
+        err, match = IsMatching(ref, xxx[i])
+
+        if match:
+            print(f"{turn} : {i} {err:.3f} matched -- delete --> {len(xxx)}")
+            yyy[i] = turn
+            del xxx[i]
+        else:
+            print(f"{turn} : {i} {err:.3f} unmatched         --> {len(xxx)}")
+
+    turn += 1
+
+print(yyy)
+
 print(kmn.predict(xxx))
     
 
